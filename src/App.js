@@ -1,7 +1,23 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 
+const useDebounceText = (text, delay) => {
+  const [debouncedText, setDebouncedText] = useState(text);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedText(text);
+    }, delay);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [text, delay]);
+  return debouncedText;
+};
+
 function App() {
+  const [textValue, setTextValue] = useState("");
+
   const fruits = [
     "Apples",
     "Apricot",
@@ -17,17 +33,20 @@ function App() {
     "Grapefruit",
   ];
 
-  const [inputValue, setInputValue] = useState("");
+  const debouncedTextValue = useDebounceText(textValue, 1000);
 
-  const filteredFruits = fruits.filter(fruit => fruit.toLowerCase().includes(inputValue.toLowerCase()))
+  const filteredFruits = fruits.filter((fruit) =>
+    fruit.toLowerCase().includes(debouncedTextValue.toLowerCase())
+  );
 
   return (
     <div>
       <input
         type="text"
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
+        value={textValue}
+        onChange={(e) => setTextValue(e.target.value)}
       />
+      <h2>DeBounce Text: {debouncedTextValue}</h2>
       {filteredFruits.map((fruit, index) => (
         <p key={index}>{fruit}</p>
       ))}
